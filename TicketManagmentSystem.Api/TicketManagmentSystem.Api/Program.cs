@@ -11,6 +11,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<IEventRepository, EventRepositoryImpl>();
 builder.Services.AddTransient<IOrderRepository, OrderRepositoryImpl>();
 
+
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

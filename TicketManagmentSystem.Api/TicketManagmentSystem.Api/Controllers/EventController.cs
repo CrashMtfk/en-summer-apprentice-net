@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
@@ -15,10 +16,12 @@ namespace TicketManagmentSystem.Api.Controllers
     {
 
         private readonly IEventRepository eventRepository;
+        private readonly IMapper mapper;
 
-        public EventController(IEventRepository eventRepository)
+        public EventController(IEventRepository eventRepository, IMapper mapper)
         { 
             this.eventRepository = eventRepository;
+            this.mapper = mapper;
         }
 
 
@@ -28,14 +31,7 @@ namespace TicketManagmentSystem.Api.Controllers
             var events = eventRepository.GetAll();
 
             
-            var dtoEvents = events.Select( e => new EventDto()
-            {
-                EventId = e.EventId,
-                EventDescription = e.EventDescription,
-                EventName = e.EventName,
-                EventType = e.EventType?.EventTypeName ?? string.Empty,
-                Venue = e.Venue?.Location ?? string.Empty
-            });
+            var dtoEvents = events.Select( e => mapper.Map<EventDto>(e));
 
             return Ok(dtoEvents);
         }
@@ -50,14 +46,7 @@ namespace TicketManagmentSystem.Api.Controllers
                 return NotFound();
             }
 
-            var dtoEvent = new EventDto()
-            {
-                EventId = @event.EventId,
-                EventDescription = @event.EventDescription,
-                EventName = @event.EventName,
-                EventType = @event.EventType.EventTypeName ?? string.Empty,
-                Venue = @event.Venue.Location ?? string.Empty
-            };
+            var dtoEvent = mapper.Map<EventDto>(@event);
             return Ok(dtoEvent);
         }
     }

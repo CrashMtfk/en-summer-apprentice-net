@@ -10,8 +10,7 @@
 
         public decimal? TotalPrice { get; set; }
 
-        public virtual Customer? Customer { get; set; }
-
-        public virtual TicketCategory? TicketCategory { get; set; }
+        public string? CustomerName { get; set; }
+        public string? TicketDescription { get; set; }
     }
 }
