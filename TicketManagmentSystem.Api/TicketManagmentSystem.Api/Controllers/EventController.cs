@@ -49,5 +49,30 @@ namespace TicketManagmentSystem.Api.Controllers
             var dtoEvent = mapper.Map<EventDto>(@event);
             return Ok(dtoEvent);
         }
+
+        [HttpPatch]
+        public async Task<ActionResult<EventPatchDto>> UpdateEvent(EventPatchDto eventPatch) 
+        {
+            var eventEntity = await eventRepository.GetById(eventPatch.EventId);
+            if(eventEntity == null)
+            {
+                return NotFound();
+            }
+            mapper.Map(eventPatch, eventEntity);
+            eventRepository.Update(eventEntity);
+            return Ok(eventEntity);
+        }
+
+        [HttpDelete]
+        public async Task<ActionResult> DeleteEvent(int id)
+        {
+            var eventEntity = await eventRepository.GetById(id);
+            if(eventEntity == null)
+            {
+                return NotFound();
+            }
+            eventRepository.Delete(eventEntity);
+            return NoContent();
+        }
     }
 }

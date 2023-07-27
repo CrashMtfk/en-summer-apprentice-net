@@ -13,7 +13,8 @@ namespace TicketManagmentSystem.Api.Profiles
                 .ForMember(dest => dest.TicketDescription, opt => opt.MapFrom(src => src.TicketCategory.TicketDescription))
                 .ReverseMap();
                 
-                
+            CreateMap<Order, OrderPatchDto>()
+                .ReverseMap();
         }
     }
 }

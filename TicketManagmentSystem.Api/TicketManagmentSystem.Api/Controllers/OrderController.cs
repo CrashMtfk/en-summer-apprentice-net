@@ -12,11 +12,13 @@ namespace TicketManagmentSystem.Api.Controllers
     public class OrderController : ControllerBase
     {
         private readonly IOrderRepository orderRepository;
+        private readonly ITicketCategoryRepository ticketCategoryRepository;
         private readonly IMapper mapper;
-        public OrderController(IOrderRepository orderRepository, IMapper mapper)
+        public OrderController(IOrderRepository orderRepository,ITicketCategoryRepository ticketCategoryRepository ,IMapper mapper)
         {
             this.orderRepository = orderRepository;
             this.mapper = mapper;
+            this.ticketCategoryRepository = ticketCategoryRepository;
         }
 
         [HttpGet]
@@ -35,7 +37,7 @@ namespace TicketManagmentSystem.Api.Controllers
         }
 
         [HttpGet]
-        public ActionResult<Order> GetOrderById(int id)
+        public ActionResult<OrderDto> GetOrderById(int id)
         {
             var order = orderRepository.GetById(id);
             if(order == null)
@@ -45,6 +47,34 @@ namespace TicketManagmentSystem.Api.Controllers
 
             var dtoOrder = mapper.Map<OrderDto>(order);
             return Ok(dtoOrder);
+        }
+
+        [HttpPatch]
+        public async Task<ActionResult<OrderPatchDto>> UpdateOrder(OrderPatchDto orderPatch)
+        {
+            var orderEntity = await orderRepository.GetByIdForUpdateAndDelete(orderPatch.OrderId);
+            var ticketCategoryEntity = await ticketCategoryRepository.GetTicketCategoryById(orderPatch.TicketCategoryID);
+            if (orderEntity == null || ticketCategoryEntity == null)
+            {
+                return NotFound();
+            }
+            decimal totalPriceOfNewOrder = (decimal)(ticketCategoryEntity.Price * orderPatch.NumberOfTickets);
+            orderEntity.TotalPrice = totalPriceOfNewOrder;
+            mapper.Map(orderPatch, orderEntity);
+            orderRepository.UpdateOrder(orderEntity);
+            return Ok(orderEntity);
+        }
+
+        [HttpDelete]
+        public async Task<ActionResult> DeleteOrder(int id)
+        {
+            var orderEntity = await orderRepository.GetByIdForUpdateAndDelete(id);
+            if(orderEntity == null)
+            {
+                return NotFound();
+            }
+            orderRepository.DeleteOrder(orderEntity);
+            return NoContent();
         }
     }
 }

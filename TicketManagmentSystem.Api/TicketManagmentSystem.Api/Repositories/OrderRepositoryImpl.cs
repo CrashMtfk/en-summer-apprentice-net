@@ -26,5 +26,26 @@ namespace TicketManagmentSystem.Api.Repositories
                                             .FirstOrDefault();
             return order;
         }
+
+        public async Task<Order> GetByIdForUpdateAndDelete(int id)
+        {
+            var order = await _dbContext.Orders
+                                            .Where(e => e.OrderId == id)
+                                            .FirstOrDefaultAsync();
+            return order;
+        }
+
+
+        public void UpdateOrder(Order toUpdateOrder)
+        {
+            _dbContext.Entry(toUpdateOrder).State = EntityState.Modified;
+            _dbContext.SaveChanges();
+        }
+
+        public void DeleteOrder(Order orderToDelete)
+        {
+            _dbContext.Remove(orderToDelete);
+            _dbContext.SaveChanges();
+        }
     }
 }

@@ -10,6 +10,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<IEventRepository, EventRepositoryImpl>();
 builder.Services.AddTransient<IOrderRepository, OrderRepositoryImpl>();
+builder.Services.AddTransient<ITicketCategoryRepository, TicketCategoryRepositoryImpl>();
 
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());

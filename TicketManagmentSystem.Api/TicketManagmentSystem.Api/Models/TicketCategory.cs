@@ -5,7 +5,7 @@ namespace TicketManagmentSystem.Api.Models;
 
 public partial class TicketCategory
 {
-    public int TicketCategoryId { get; set; }
+    public int? TicketCategoryId { get; set; }
 
     public int? EventId { get; set; }
 
