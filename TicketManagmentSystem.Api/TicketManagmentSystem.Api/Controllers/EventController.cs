@@ -1,6 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
+using System.ComponentModel;
+using TicketManagmentSystem.Api.Models;
 using TicketManagmentSystem.Api.Models.Dto;
+using TicketManagmentSystem.Api.Repositories;
 
 namespace TicketManagmentSystem.Api.Controllers
 {
@@ -8,29 +14,65 @@ namespace TicketManagmentSystem.Api.Controllers
     [ApiController]
     public class EventController : ControllerBase
     {
+
+        private readonly IEventRepository eventRepository;
+        private readonly IMapper mapper;
+
+        public EventController(IEventRepository eventRepository, IMapper mapper)
+        { 
+            this.eventRepository = eventRepository;
+            this.mapper = mapper;
+        }
+
+
         [HttpGet]
         public ActionResult<List<EventDto>> GetAll()
         {
-            var events = new List<EventDto>();
+            var events = eventRepository.GetAll();
 
-            events.Add(new EventDto
-            {
-                EventId = 1,
-                EventName = "Test 1",
-                EventDescription = "Merge treaba",
-                EventType = "Muzica",
-                Venue = "Acasa"
-            });
-            events.Add(new EventDto
-            {
-                EventId = 2,
-                EventName = "Test 2",
-                EventDescription = "Nu merge",
-                EventType = "Bautura",
-                Venue = "La bar"
-            });
+            
+            var dtoEvents = events.Select( e => mapper.Map<EventDto>(e));
 
-            return Ok(events);
+            return Ok(dtoEvents);
+        }
+
+        [HttpGet]
+        public ActionResult<EventDto> GetById(int id)
+        {
+            var @event = eventRepository.GetById(id);
+
+            if(@event == null)
+            {
+                return NotFound();
+            }
+
+            var dtoEvent = mapper.Map<EventDto>(@event);
+            return Ok(dtoEvent);
+        }
+
+        [HttpPatch]
+        public async Task<ActionResult<EventPatchDto>> UpdateEvent(EventPatchDto eventPatch) 
+        {
+            var eventEntity = await eventRepository.GetById(eventPatch.EventId);
+            if(eventEntity == null)
+            {
+                return NotFound();
+            }
+            mapper.Map(eventPatch, eventEntity);
+            eventRepository.Update(eventEntity);
+            return Ok(eventEntity);
+        }
+
+        [HttpDelete]
+        public async Task<ActionResult> DeleteEvent(int id)
+        {
+            var eventEntity = await eventRepository.GetById(id);
+            if(eventEntity == null)
+            {
+                return NotFound();
+            }
+            eventRepository.Delete(eventEntity);
+            return NoContent();
         }
     }
 }
