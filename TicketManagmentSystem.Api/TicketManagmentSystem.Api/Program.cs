@@ -2,6 +2,7 @@ using TicketManagmentSystem.Api.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using TicketManagmentSystem.Api.BusinessLogic;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,9 +16,10 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddTransient<IEventRepository, EventRepositoryImpl>();
-builder.Services.AddTransient<IOrderRepository, OrderRepositoryImpl>();
-builder.Services.AddTransient<ITicketCategoryRepository, TicketCategoryRepositoryImpl>();
+builder.Services.AddScoped<OrderService>();
+builder.Services.AddScoped<IEventRepository, EventRepositoryImpl>();
+builder.Services.AddScoped<IOrderRepository, OrderRepositoryImpl>();
+builder.Services.AddScoped<ITicketCategoryRepository, TicketCategoryRepositoryImpl>();
 
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());

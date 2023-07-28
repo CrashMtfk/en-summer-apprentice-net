@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using TicketManagmentSystem.Api.BusinessLogic;
 using TicketManagmentSystem.Api.Models;
 using TicketManagmentSystem.Api.Models.Dto;
 using TicketManagmentSystem.Api.Repositories;
@@ -12,69 +13,62 @@ namespace TicketManagmentSystem.Api.Controllers
     public class OrderController : ControllerBase
     {
         private readonly IOrderRepository orderRepository;
+        private readonly OrderService orderService;
         private readonly ITicketCategoryRepository ticketCategoryRepository;
         private readonly IMapper mapper;
-        public OrderController(IOrderRepository orderRepository,ITicketCategoryRepository ticketCategoryRepository ,IMapper mapper)
+        public OrderController(IOrderRepository orderRepository,
+                                ITicketCategoryRepository ticketCategoryRepository,
+                                IMapper mapper,
+                                OrderService orderService)
         {
             this.orderRepository = orderRepository;
             this.mapper = mapper;
             this.ticketCategoryRepository = ticketCategoryRepository;
+            this.orderService = orderService;
         }
 
         [HttpGet]
         public ActionResult<List<OrderDto>> GetAll()
         {
-            var orders = orderRepository.GetAll();
+            var dtoOrders = orderService.GetAll();
 
-            if(orders == null)
+            if(dtoOrders == null)
             {
                 return NotFound();
             }
-
-            var dtoOrders = orders.Select(x => mapper.Map<OrderDto>(x));
-
             return Ok(dtoOrders);
         }
 
         [HttpGet]
         public async Task<ActionResult<OrderDto>> GetOrderById(int id)
         {
-            var order = await orderRepository.GetById(id);
-            if(order == null)
+            var dtoOrder = await orderService.GetOrderById(id);
+            if(dtoOrder == null)
             {
                 return NotFound();
             }
-
-            var dtoOrder = mapper.Map<OrderDto>(order);
             return Ok(dtoOrder);
         }
 
         [HttpPatch]
         public async Task<ActionResult<OrderPatchDto>> UpdateOrder(OrderPatchDto orderPatch)
         {
-            var orderEntity = await orderRepository.GetById(orderPatch.OrderId);
-            var ticketCategoryEntity = await ticketCategoryRepository.GetTicketCategoryById(orderPatch.TicketCategoryID);
-            if (orderEntity == null || ticketCategoryEntity == null)
+            var orderEntity = orderService.UpdateOrder(orderPatch);
+            if (orderEntity == null)
             {
                 return NotFound();
             }
-            
-            decimal totalPriceOfNewOrder = (decimal)(ticketCategoryEntity.Price * orderPatch.NumberOfTickets);
-            orderEntity.TotalPrice = totalPriceOfNewOrder;
-            mapper.Map(orderPatch, orderEntity);
-            orderRepository.UpdateOrder(orderEntity);
             return Ok(orderEntity);
         }
 
         [HttpDelete]
         public async Task<ActionResult> DeleteOrder(int id)
         {
-            var orderEntity = await orderRepository.GetById(id);
-            if(orderEntity == null)
+            var deletedEntityDto = orderService.DeleteOrder(id);
+            if(deletedEntityDto == null)
             {
                 return NotFound();
             }
-            orderRepository.DeleteOrder(orderEntity);
             return NoContent();
         }
     }
