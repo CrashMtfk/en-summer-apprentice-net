@@ -37,9 +37,9 @@ namespace TicketManagmentSystem.Api.Controllers
         }
 
         [HttpGet]
-        public ActionResult<OrderDto> GetOrderById(int id)
+        public async Task<ActionResult<OrderDto>> GetOrderById(int id)
         {
-            var order = orderRepository.GetById(id);
+            var order = await orderRepository.GetById(id);
             if(order == null)
             {
                 return NotFound();
@@ -52,12 +52,13 @@ namespace TicketManagmentSystem.Api.Controllers
         [HttpPatch]
         public async Task<ActionResult<OrderPatchDto>> UpdateOrder(OrderPatchDto orderPatch)
         {
-            var orderEntity = await orderRepository.GetByIdForUpdateAndDelete(orderPatch.OrderId);
+            var orderEntity = await orderRepository.GetById(orderPatch.OrderId);
             var ticketCategoryEntity = await ticketCategoryRepository.GetTicketCategoryById(orderPatch.TicketCategoryID);
             if (orderEntity == null || ticketCategoryEntity == null)
             {
                 return NotFound();
             }
+            
             decimal totalPriceOfNewOrder = (decimal)(ticketCategoryEntity.Price * orderPatch.NumberOfTickets);
             orderEntity.TotalPrice = totalPriceOfNewOrder;
             mapper.Map(orderPatch, orderEntity);
@@ -68,7 +69,7 @@ namespace TicketManagmentSystem.Api.Controllers
         [HttpDelete]
         public async Task<ActionResult> DeleteOrder(int id)
         {
-            var orderEntity = await orderRepository.GetByIdForUpdateAndDelete(id);
+            var orderEntity = await orderRepository.GetById(id);
             if(orderEntity == null)
             {
                 return NotFound();

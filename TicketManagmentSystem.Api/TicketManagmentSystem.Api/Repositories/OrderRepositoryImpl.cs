@@ -18,12 +18,13 @@ namespace TicketManagmentSystem.Api.Repositories
             return orders;
         }
 
-        public Order GetById(int id)
+        public async Task<Order> GetById(int id)
         {
-            var order = _dbContext.Orders.Include(x => x.TicketCategory)
+            var order = await _dbContext.Orders
                                             .Include(x => x.Customer)
+                                            .Include(x => x.TicketCategory)
                                             .Where(e => e.OrderId == id)
-                                            .FirstOrDefault();
+                                            .FirstOrDefaultAsync();
             return order;
         }
 
