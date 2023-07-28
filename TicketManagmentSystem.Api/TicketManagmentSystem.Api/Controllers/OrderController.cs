@@ -53,7 +53,7 @@ namespace TicketManagmentSystem.Api.Controllers
         [HttpPatch]
         public async Task<ActionResult<OrderPatchDto>> UpdateOrder(OrderPatchDto orderPatch)
         {
-            var orderEntity = orderService.UpdateOrder(orderPatch);
+            var orderEntity = await orderService.UpdateOrder(orderPatch);
             if (orderEntity == null)
             {
                 return NotFound();
@@ -64,7 +64,7 @@ namespace TicketManagmentSystem.Api.Controllers
         [HttpDelete]
         public async Task<ActionResult> DeleteOrder(int id)
         {
-            var deletedEntityDto = orderService.DeleteOrder(id);
+            var deletedEntityDto = await orderService.DeleteOrder(id);
             if(deletedEntityDto == null)
             {
                 return NotFound();
